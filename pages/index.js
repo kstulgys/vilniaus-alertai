@@ -20,22 +20,20 @@ import axios from "axios";
 
 export default function Index({ data, categories }) {
   const [searchResults, setSearchResults] = useState(data);
-  const [searchTerm, setSearchTerm] = useState("");
+  // const [searchTerm, setSearchTerm] = useState("");
 
   const handleSearchTerm = e => {
-    setSearchTerm(e.target.value);
-  };
-
-  useEffect(() => {
+    // setSearchTerm(e.target.value);
+    const searchTerm = e.target.value.toLowerCase();
     if (searchTerm) {
       const results = data.filter(item => {
-        return item.alert_data.content.includes(searchTerm);
+        return item.alert_data.content.toLowerCase().includes(searchTerm);
       });
       setSearchResults(results);
     } else {
       setSearchResults(data);
     }
-  }, [searchTerm, data]);
+  };
 
   return (
     <ThemeProvider>
@@ -60,7 +58,13 @@ export default function Index({ data, categories }) {
             <Box width="25%">
               {categories.map(category => {
                 return (
-                  <Badge fontSize="md" mx="2" mb="3" variantColor="purple">
+                  <Badge
+                    key={category}
+                    fontSize="md"
+                    mx="2"
+                    mb="3"
+                    variantColor="purple"
+                  >
                     {category}
                   </Badge>
                 );
@@ -118,14 +122,18 @@ export default function Index({ data, categories }) {
 function Header({ handleSearchTerm }) {
   return (
     <Flex
-      h="350px"
-      bg="blue.100"
-      roundedBottomLeft="100px"
-      alignItems="center"
+      width="full"
       flexDirection="column"
+      bg="blue.100"
       px="4"
+      roundedBottomLeft="100px"
     >
-      <SearchInput handleSearchTerm={handleSearchTerm} />
+      <Box ml="auto">
+        <Text>Vilniaus Alertai</Text>
+      </Box>
+      <Flex alignItems="center" flexDirection="column" h="350px">
+        <SearchInput handleSearchTerm={handleSearchTerm} />
+      </Flex>
     </Flex>
   );
 }
@@ -181,11 +189,3 @@ Index.getInitialProps = async () => {
 
   return { categories, data };
 };
-
-// async function getData(){
-//   const { data = [] } = await axios.get(
-//     "https://api.vilnius.lt/get-vilnius-gyvai/getmessages"
-//   );
-
-//   return data
-// }
