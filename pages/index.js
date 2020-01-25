@@ -55,7 +55,7 @@ export default function Index({ data, categories }) {
       </Head>
       <Header handleSearchTerm={handleSearchTerm} />
       <Box fontFamily="Montserrat" overflowY="hidden">
-        <Box maxWidth="1280px" mx="auto" pt="10" px="4">
+        <Box maxWidth="1280px" mx="auto" pt="16" px="4">
           <Flex>
             <Box width="25%">
               {categories.map(category => {
@@ -118,7 +118,7 @@ export default function Index({ data, categories }) {
 function Header({ handleSearchTerm }) {
   return (
     <Flex
-      h="64"
+      h="350px"
       bg="blue.100"
       roundedBottomLeft="100px"
       alignItems="center"
