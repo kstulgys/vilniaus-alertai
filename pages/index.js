@@ -67,10 +67,16 @@ export default function Index({ data, categories }) {
               })}
             </Box>
             <Box flex="1" px="10">
+              <Text fontFamily="inherit" color="purple.600" mb="4">
+                Rasta:{" "}
+                <span style={{ fontWeight: "bold" }}>
+                  {searchResults.length}
+                </span>
+              </Text>
               {searchResults.map(({ alert_data, create_date }) => {
                 return (
                   <Box key={create_date}>
-                    <Text fontSize="lg" fontFamily="inherit">
+                    <Text fontFamily="inherit" fontSize="lg">
                       {alert_data.content}
                     </Text>
                     <Flex mt="2" alignItems="center">
