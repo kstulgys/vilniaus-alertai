@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import Link from "next/link";
 import Head from "next/head";
 import {
   ThemeProvider,
@@ -18,9 +17,43 @@ import {
 } from "@chakra-ui/core";
 import axios from "axios";
 
+const SCOPE_MAP = {
+  All: 0,
+  Transportas: 1,
+  Naujienos: 2,
+  Aplinka: 3,
+  Kultūra: 4,
+  Sveikata: 5,
+  "Socialinė apsauga": 6,
+  Saugumas: 7,
+  Švietimas: 8,
+  Plėtra: 9,
+  "Kita ": 10
+};
+
 export default function Index({ data, categories }) {
-  const [searchResults, setSearchResults] = useState(data);
-  // const [searchTerm, setSearchTerm] = useState("");
+  // const [loading, setLoading] = useState(false);
+  const [searchResults, setSearchResults] = useState([]);
+  const [currentCategory, setCategory] = useState(0);
+  console.log({ currentCategory });
+  console.log({ data });
+  console.log({ searchResults });
+
+  async function getDataByCategory(categoryNum) {
+    console.log(`***************************`, categoryNum);
+    // https://api.vilnius.lt/api
+    // if (!categoryNum || categoryNum === 0) {
+    //   const { data = [] } = await axios.get(
+    //     "https://api.vilnius.lt/get-vilnius-gyvai/getmessages"
+    //   );
+    //   return data;
+    // }
+    const { data: res = [] } = await axios.get(
+      `https://api.vilnius.lt/get-vilnius-gyvai/getmessages?scope=${categoryNum}`
+    );
+    console.log(res, `******`);
+    return res;
+  }
 
   const handleSearchTerm = e => {
     // setSearchTerm(e.target.value);
@@ -34,6 +67,30 @@ export default function Index({ data, categories }) {
       setSearchResults(data);
     }
   };
+
+  const handleCategoryPick = category => {
+    const catId = SCOPE_MAP[category];
+    setCategory(catId);
+    console.log("handleCategoryPick() category:", catId);
+  };
+  useEffect(() => {
+    // console.log({ currentCategory });
+    // update the searchResults by
+    // if (currentCategory !== 0) {
+    // setLoading(true);
+    getDataByCategory(currentCategory).then(dataByCategory => {
+      console.log(`*********`);
+      setSearchResults(dataByCategory);
+      console.log({ dataByCategory });
+    });
+    // setLoading(false);
+    // }
+
+    // if (currentCategory === 0) {
+    //   setSearchResults(data);
+    // setLoading(false);
+    // }
+  }, [currentCategory]);
 
   return (
     <ThemeProvider>
@@ -64,6 +121,7 @@ export default function Index({ data, categories }) {
                     mx="2"
                     mb="3"
                     variantColor="purple"
+                    onClick={() => handleCategoryPick(category)}
                   >
                     {category}
                   </Badge>
@@ -77,37 +135,38 @@ export default function Index({ data, categories }) {
                   {searchResults.length}
                 </span>
               </Text>
-              {searchResults.map(({ alert_data, create_date }) => {
-                return (
-                  <Box key={create_date}>
-                    <Text fontFamily="inherit" fontSize="lg">
-                      {alert_data.content}
-                    </Text>
-                    <Flex mt="2" alignItems="center">
-                      <Box ml="auto">
-                        <Text
-                          color="gray.500"
-                          fontSize="sm"
+              {!!searchResults.length &&
+                searchResults.map(({ alert_data, create_date }) => {
+                  return (
+                    <Box key={create_date}>
+                      <Text fontFamily="inherit" fontSize="lg">
+                        {alert_data.content}
+                      </Text>
+                      <Flex mt="2" alignItems="center">
+                        <Box ml="auto">
+                          <Text
+                            color="gray.500"
+                            fontSize="sm"
+                            fontFamily="inherit"
+                          >
+                            {create_date}
+                          </Text>
+                        </Box>
+                        <Badge
+                          ml="4"
+                          pt="1px"
+                          fontSize="xs"
+                          variantColor="purple"
                           fontFamily="inherit"
                         >
-                          {create_date}
-                        </Text>
-                      </Box>
-                      <Badge
-                        ml="4"
-                        pt="1px"
-                        fontSize="xs"
-                        variantColor="purple"
-                        fontFamily="inherit"
-                      >
-                        {alert_data.alert_scope}
-                      </Badge>
-                    </Flex>
+                          {alert_data.alert_scope}
+                        </Badge>
+                      </Flex>
 
-                    <Divider my="6" />
-                  </Box>
-                );
-              })}
+                      <Divider my="6" />
+                    </Box>
+                  );
+                })}
             </Box>
             <Box width="25%">
               <Flex bg="gray.200" height="64" borderRadius="lg" />
@@ -131,7 +190,7 @@ function Header({ handleSearchTerm }) {
       <Box ml="auto">
         <Text>Vilniaus Alertai</Text>
       </Box>
-      <Flex alignItems="center" flexDirection="column" h="350px">
+      <Flex alignItems="center" flexDirection="column" h="150px">
         <SearchInput handleSearchTerm={handleSearchTerm} />
       </Flex>
     </Flex>
@@ -179,6 +238,24 @@ Index.getInitialProps = async () => {
   const { data = [] } = await axios.get(
     "https://api.vilnius.lt/get-vilnius-gyvai/getmessages"
   );
+  const typeMap = {
+    All: 0,
+    Ispejimas: 1,
+    Naujienos: 2
+  };
+  const scopeMap = {
+    All: 0,
+    Transportas: 1,
+    Naujienos: 2,
+    Aplinka: 3,
+    Kultūra: 4,
+    Sveikata: 5,
+    "Socialinė apsauga": 6,
+    Saugumas: 7,
+    NA: 8,
+    Plėtra: 9,
+    Kita: 10
+  };
   // create categories object
   const categoriesObj = data.reduce((acc, next) => {
     acc[next.alert_data.alert_scope] = true;
@@ -188,4 +265,32 @@ Index.getInitialProps = async () => {
   const categories = Object.keys(categoriesObj);
 
   return { categories, data };
+  // create categories object
+  // const categoriesArray = data.reduce((acc, next) => {
+  //   const scopeName = next.alert_data.alert_scope;
+  //   acc.push({ scopeName, id: scopeMap[scopeName] });
+  //   return acc;
+  // }, []);
+  // // get categories array
+
+  // const categories = [...categoriesArray, { scopeName: "All", id: 0 }];
+
+  // get promises
+  // let i = 1;
+  // const resArray = [];
+  // while (resArray.length <= 9 || i < 100) {
+  //   const { data = [] } = await getDataByCategory(i);
+  //   if (data.length >= 1) {
+  //     resArray.push({ categoryName: data[0].alert_data.alert_scope, idx: i });
+  //   }
+  //   i++;
+  // }
+
+  //const resolved = await Promise.all(resArray);
+
+  // const notEmptyResolved = resolved.map(messages => {
+  //   const notEmptyMessages = messages.filter(m => m.alert_data.content);
+  //   //return notEmptyMessages[0].alert_data.alert_type;
+  //   return notEmptyMessages;
+  // });
 };
