@@ -32,28 +32,12 @@ const SCOPE_MAP = {
 };
 
 export default function Index({ data, categories }) {
-  // const [loading, setLoading] = useState(false);
+  const [isLoading, setLoading] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
   const [currentCategory, setCategory] = useState(0);
   console.log({ currentCategory });
   console.log({ data });
   console.log({ searchResults });
-
-  async function getDataByCategory(categoryNum) {
-    console.log(`***************************`, categoryNum);
-    // https://api.vilnius.lt/api
-    // if (!categoryNum || categoryNum === 0) {
-    //   const { data = [] } = await axios.get(
-    //     "https://api.vilnius.lt/get-vilnius-gyvai/getmessages"
-    //   );
-    //   return data;
-    // }
-    const { data: res = [] } = await axios.get(
-      `https://api.vilnius.lt/get-vilnius-gyvai/getmessages?scope=${categoryNum}`
-    );
-    console.log(res, `******`);
-    return res;
-  }
 
   const handleSearchTerm = e => {
     // setSearchTerm(e.target.value);
@@ -294,3 +278,19 @@ Index.getInitialProps = async () => {
   //   return notEmptyMessages;
   // });
 };
+
+async function getDataByCategory(categoryNum) {
+  console.log(`***************************`, categoryNum);
+  // https://api.vilnius.lt/api
+  // if (!categoryNum || categoryNum === 0) {
+  //   const { data = [] } = await axios.get(
+  //     "https://api.vilnius.lt/get-vilnius-gyvai/getmessages"
+  //   );
+  //   return data;
+  // }
+  const { data: res = [] } = await axios.get(
+    `https://cors-anywhere.herokuapp.com/https://api.vilnius.lt/get-vilnius-gyvai/getmessages?scope=${categoryNum}`
+  );
+  console.log(res, `******`);
+  return res;
+}
